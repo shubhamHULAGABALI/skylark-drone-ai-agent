@@ -1,17 +1,25 @@
 import gspread
+import json
+import os
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 from functools import lru_cache
 import logging
 
-# Setup logging
+
+# ================================
+# Logging setup
+# ================================
 logging.basicConfig(
     filename="agent.log",
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-# Google Sheets URL
+
+# ================================
+# Google Sheets config
+# ================================
 SHEET_URL = "https://docs.google.com/spreadsheets/d/148iSDjZ_EBBCHBfDucSyQFVP8lKg8yHqINGKfqCAv18/edit"
 
 scope = [
@@ -19,14 +27,30 @@ scope = [
     "https://www.googleapis.com/auth/drive"
 ]
 
-creds = ServiceAccountCredentials.from_json_keyfile_name(
-    "credentials.json",
-    scope
-)
 
-client = gspread.authorize(creds)
+# ================================
+# Load credentials securely from Render environment variable
+# ================================
+try:
 
-spreadsheet = client.open_by_url(SHEET_URL)
+    creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])
+
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(
+        creds_dict,
+        scope
+    )
+
+    client = gspread.authorize(creds)
+
+    spreadsheet = client.open_by_url(SHEET_URL)
+
+    logging.info("Google Sheets connection successful")
+
+except Exception as e:
+
+    logging.error(f"Google Sheets connection failed: {e}")
+
+    spreadsheet = None
 
 
 # ===============================
