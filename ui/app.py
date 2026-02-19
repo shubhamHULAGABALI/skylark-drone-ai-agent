@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-API_URL = "http://127.0.0.1:8000"
+API_URL = "https://skylark-drone-api.onrender.com"  # ← Updated for production
 
 st.set_page_config(page_title="Skylark Drone AI Agent", layout="wide")
 
@@ -191,7 +191,7 @@ show missions
 
     except requests.exceptions.ConnectionError:
 
-        return "Backend server is not running. Please start FastAPI."
+        return "❌ Cannot reach backend. Please check if the API server is running."
 
     except Exception as e:
 
